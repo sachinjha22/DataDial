@@ -34,68 +34,72 @@ fun ResultsSection(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = UsagePalette.GlassSurface.copy(alpha = UsagePalette.GlassSurfaceAlpha)),
-            border = BorderStroke(1.dp, UsagePalette.GlassSurface.copy(alpha = UsagePalette.GlassBorderAlpha)),
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+        EntranceAnimated(index = 0) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = UsagePalette.GlassSurface.copy(alpha = UsagePalette.GlassSurfaceAlpha)),
+                border = BorderStroke(1.dp, UsagePalette.GlassSurface.copy(alpha = UsagePalette.GlassBorderAlpha)),
             ) {
-                Text(
-                    text = "TOTAL DEVICE USAGE",
-                    color = UsagePalette.TextMuted,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = formatDateRange(startMillis, endMillis),
-                    color = UsagePalette.TextMuted,
-                    fontSize = 11.sp,
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                UsageDonutChart(
-                    mobileBytes = result.mobile.totalBytes,
-                    wifiBytes = result.wifi.totalBytes,
-                )
-                Spacer(modifier = Modifier.height(18.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                    LegendDot(label = "Mobile", color = UsagePalette.Mobile, bytes = result.mobile.totalBytes)
-                    LegendDot(label = "Wi-Fi", color = UsagePalette.Wifi, bytes = result.wifi.totalBytes)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        text = "TOTAL DEVICE USAGE",
+                        color = UsagePalette.TextMuted,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = formatDateRange(startMillis, endMillis),
+                        color = UsagePalette.TextMuted,
+                        fontSize = 11.sp,
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    UsageDonutChart(
+                        mobileBytes = result.mobile.totalBytes,
+                        wifiBytes = result.wifi.totalBytes,
+                    )
+                    Spacer(modifier = Modifier.height(18.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                        LegendDot(label = "Mobile", color = UsagePalette.Mobile, bytes = result.mobile.totalBytes)
+                        LegendDot(label = "Wi-Fi", color = UsagePalette.Wifi, bytes = result.wifi.totalBytes)
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+                    DownloadUploadBar(
+                        downloadBytes = result.totalDownloadBytes,
+                        uploadBytes = result.totalUploadBytes,
+                    )
                 }
-                Spacer(modifier = Modifier.height(20.dp))
-                DownloadUploadBar(
-                    downloadBytes = result.totalDownloadBytes,
-                    uploadBytes = result.totalUploadBytes,
-                )
             }
         }
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        Row(modifier = Modifier.fillMaxWidth()) {
-            TransportStatCard(
-                title = "Mobile",
-                icon = Icons.Filled.SignalCellularAlt,
-                accentColor = UsagePalette.Mobile,
-                downloadBytes = result.mobile.rxBytes,
-                uploadBytes = result.mobile.txBytes,
-                modifier = Modifier.weight(1f),
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            TransportStatCard(
-                title = "Wi-Fi",
-                icon = Icons.Filled.Wifi,
-                accentColor = UsagePalette.Wifi,
-                downloadBytes = result.wifi.rxBytes,
-                uploadBytes = result.wifi.txBytes,
-                modifier = Modifier.weight(1f),
-            )
+        EntranceAnimated(index = 1) {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                TransportStatCard(
+                    title = "Mobile",
+                    icon = Icons.Filled.SignalCellularAlt,
+                    accentColor = UsagePalette.Mobile,
+                    downloadBytes = result.mobile.rxBytes,
+                    uploadBytes = result.mobile.txBytes,
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                TransportStatCard(
+                    title = "Wi-Fi",
+                    icon = Icons.Filled.Wifi,
+                    accentColor = UsagePalette.Wifi,
+                    downloadBytes = result.wifi.rxBytes,
+                    uploadBytes = result.wifi.txBytes,
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
     }
 }

@@ -17,11 +17,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -113,57 +111,68 @@ fun DateTimeSelectorCard(
         }
     }
 
-    if (showDatePicker) {
+    AnimatedDialog(
+        visible = showDatePicker,
+        onDismissRequest = { showDatePicker = false },
+    ) {
         val datePickerState = rememberDatePickerState(initialSelectedDateMillis = millis)
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    val selected = datePickerState.selectedDateMillis
-                    if (selected != null) {
-                        val utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply { timeInMillis = selected }
-                        pendingDate = PendingDate(
-                            year = utcCal.get(Calendar.YEAR),
-                            month = utcCal.get(Calendar.MONTH),
-                            day = utcCal.get(Calendar.DAY_OF_MONTH),
-                        )
-                        showDatePicker = false
-                        showTimePicker = true
-                    } else {
-                        showDatePicker = false
-                    }
-                }) { Text("Next") }
-            },
-            dismissButton = { TextButton(onClick = { showDatePicker = false }) { Text("Cancel") } },
+        DatePicker(state = datePickerState)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.End,
         ) {
-            DatePicker(state = datePickerState)
+            TextButton(onClick = { showDatePicker = false }) { Text("Cancel") }
+            TextButton(onClick = {
+                val selected = datePickerState.selectedDateMillis
+                if (selected != null) {
+                    val utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply { timeInMillis = selected }
+                    pendingDate = PendingDate(
+                        year = utcCal.get(Calendar.YEAR),
+                        month = utcCal.get(Calendar.MONTH),
+                        day = utcCal.get(Calendar.DAY_OF_MONTH),
+                    )
+                    showDatePicker = false
+                    showTimePicker = true
+                } else {
+                    showDatePicker = false
+                }
+            }) { Text("Next") }
         }
     }
 
-    if (showTimePicker) {
+    AnimatedDialog(
+        visible = showTimePicker,
+        onDismissRequest = { showTimePicker = false },
+    ) {
         val referenceCal = remember { Calendar.getInstance().apply { timeInMillis = millis } }
         val timePickerState = rememberTimePickerState(
             initialHour = referenceCal.get(Calendar.HOUR_OF_DAY),
             initialMinute = referenceCal.get(Calendar.MINUTE),
             is24Hour = false,
         )
-        AlertDialog(
-            onDismissRequest = { showTimePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    val date = pendingDate
-                    if (date != null) {
-                        val resultCal = Calendar.getInstance().apply {
-                            clear()
-                            set(date.year, date.month, date.day, timePickerState.hour, timePickerState.minute, 0)
-                        }
-                        onChange(resultCal.timeInMillis)
+        Column(modifier = Modifier.padding(24.dp)) {
+            TimePicker(state = timePickerState)
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.End,
+        ) {
+            TextButton(onClick = { showTimePicker = false }) { Text("Cancel") }
+            TextButton(onClick = {
+                val date = pendingDate
+                if (date != null) {
+                    val resultCal = Calendar.getInstance().apply {
+                        clear()
+                        set(date.year, date.month, date.day, timePickerState.hour, timePickerState.minute, 0)
                     }
-                    showTimePicker = false
-                }) { Text("Set") }
-            },
-            dismissButton = { TextButton(onClick = { showTimePicker = false }) { Text("Cancel") } },
-            text = { TimePicker(state = timePickerState) },
-        )
+                    onChange(resultCal.timeInMillis)
+                }
+                showTimePicker = false
+            }) { Text("Set") }
+        }
     }
 }

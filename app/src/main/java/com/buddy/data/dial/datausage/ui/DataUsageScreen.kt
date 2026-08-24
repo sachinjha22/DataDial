@@ -62,6 +62,7 @@ import com.buddy.data.dial.datausage.mvi.UsageViewModel
 import com.buddy.data.dial.datausage.ui.components.CalculateButton
 import com.buddy.data.dial.datausage.ui.components.DateTimeSelectorCard
 import com.buddy.data.dial.datausage.ui.components.EmptyUsagePlaceholder
+import com.buddy.data.dial.datausage.ui.components.EntranceAnimated
 import com.buddy.data.dial.datausage.ui.components.LoadingUsagePlaceholder
 import com.buddy.data.dial.datausage.ui.components.PermissionBanner
 import com.buddy.data.dial.datausage.ui.components.ResultsSection
@@ -125,31 +126,39 @@ fun DataUsageScreenContent(
             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            item { ScreenHeader() }
+            var slot = 0
+
+            item { EntranceAnimated(index = slot++) { ScreenHeader() } }
 
             if (!state.hasUsageAccess) {
                 item {
-                    PermissionBanner(onGrantClick = { onIntent(UsageIntent.RequestUsageAccess) })
+                    EntranceAnimated(index = slot++) {
+                        PermissionBanner(onGrantClick = { onIntent(UsageIntent.RequestUsageAccess) })
+                    }
                 }
             }
 
             item {
-                DateTimeSelectorCard(
-                    label = "START",
-                    icon = Icons.Filled.CalendarMonth,
-                    millis = state.startDateTimeMillis,
-                    accentColor = UsagePalette.Download,
-                    onChange = { onIntent(UsageIntent.ChangeStartDateTime(it)) },
-                )
+                EntranceAnimated(index = slot++) {
+                    DateTimeSelectorCard(
+                        label = "START",
+                        icon = Icons.Filled.CalendarMonth,
+                        millis = state.startDateTimeMillis,
+                        accentColor = UsagePalette.Download,
+                        onChange = { onIntent(UsageIntent.ChangeStartDateTime(it)) },
+                    )
+                }
             }
             item {
-                DateTimeSelectorCard(
-                    label = "END",
-                    icon = Icons.Filled.EventAvailable,
-                    millis = state.endDateTimeMillis,
-                    accentColor = UsagePalette.Upload,
-                    onChange = { onIntent(UsageIntent.ChangeEndDateTime(it)) },
-                )
+                EntranceAnimated(index = slot++) {
+                    DateTimeSelectorCard(
+                        label = "END",
+                        icon = Icons.Filled.EventAvailable,
+                        millis = state.endDateTimeMillis,
+                        accentColor = UsagePalette.Upload,
+                        onChange = { onIntent(UsageIntent.ChangeEndDateTime(it)) },
+                    )
+                }
             }
 
             item {
@@ -170,35 +179,39 @@ fun DataUsageScreenContent(
             }
 
             item {
-                CalculateButton(
-                    isLoading = state.isCalculating,
-                    enabled = state.hasUsageAccess,
-                    onClick = { onIntent(UsageIntent.Calculate) },
-                )
+                EntranceAnimated(index = slot++) {
+                    CalculateButton(
+                        isLoading = state.isCalculating,
+                        enabled = state.hasUsageAccess,
+                        onClick = { onIntent(UsageIntent.Calculate) },
+                    )
+                }
             }
 
             item {
-                val panel = when {
-                    state.isCalculating -> UsagePanel.LOADING
-                    state.result != null -> UsagePanel.RESULT
-                    else -> UsagePanel.EMPTY
-                }
-                AnimatedContent(
-                    targetState = panel,
-                    transitionSpec = {
-                        (fadeIn() + slideInVertically(initialOffsetY = { it / 8 })) togetherWith fadeOut()
-                    },
-                    label = "resultsPanel",
-                ) { target ->
-                    when (target) {
-                        UsagePanel.EMPTY -> EmptyUsagePlaceholder()
-                        UsagePanel.LOADING -> LoadingUsagePlaceholder()
-                        UsagePanel.RESULT -> state.result?.let { result ->
-                            ResultsSection(
-                                result = result,
-                                startMillis = state.startDateTimeMillis,
-                                endMillis = state.endDateTimeMillis,
-                            )
+                EntranceAnimated(index = slot++) {
+                    val panel = when {
+                        state.isCalculating -> UsagePanel.LOADING
+                        state.result != null -> UsagePanel.RESULT
+                        else -> UsagePanel.EMPTY
+                    }
+                    AnimatedContent(
+                        targetState = panel,
+                        transitionSpec = {
+                            (fadeIn() + slideInVertically(initialOffsetY = { it / 8 })) togetherWith fadeOut()
+                        },
+                        label = "resultsPanel",
+                    ) { target ->
+                        when (target) {
+                            UsagePanel.EMPTY -> EmptyUsagePlaceholder()
+                            UsagePanel.LOADING -> LoadingUsagePlaceholder()
+                            UsagePanel.RESULT -> state.result?.let { result ->
+                                ResultsSection(
+                                    result = result,
+                                    startMillis = state.startDateTimeMillis,
+                                    endMillis = state.endDateTimeMillis,
+                                )
+                            }
                         }
                     }
                 }
